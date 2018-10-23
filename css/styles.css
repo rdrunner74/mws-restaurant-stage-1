@@ -183,16 +183,17 @@ nav h1 a {
   font-weight: 200;
   letter-spacing: 0;
   line-height: 1.3;
-  margin: 0 0 0 20px;
+  margin: 0 20px 0 20px;
   text-transform: uppercase;
   word-wrap: break-word;
-  width: 100%;
+  width: calc(100% - 30px);
 }
 #restaurants-list p {
   margin: 0;
   font-size: 11pt;
-  width: 100%;
-  margin: 0 0 0 20px;
+  width: calc(100% - 30px);
+  margin: 0;
+  padding: 0 20px 0 20px;
 }
 #restaurants-list li a {
   background-color: orange;
