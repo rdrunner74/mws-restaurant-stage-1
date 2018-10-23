@@ -32,11 +32,11 @@ a img{
 }
 h1, h2, h3, h4, h5, h6 {
   font-family: Arial, Helvetica, sans-serif;
-  /*margin: 0; padding: 0;*/
+  margin: 0; padding: 0;
   
   word-wrap: break-word;
 }
-article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+article, aside, canvas, details, figcaption, figure, header, hgroup, menu, nav, section {
   display: block;
   margin: 0; padding: 0;
   width:100%;
@@ -55,7 +55,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
   padding: 25px;
   text-align: center;
   text-transform: uppercase;
-  width: calc(100% - 50px);
+  width: (100% - 50px);
 }
 /* ====================== Navigation ====================== */
 section {
