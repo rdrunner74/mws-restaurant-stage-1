@@ -23,7 +23,6 @@ self.addEventListener('install', function(event) {
                 '/css/styles.css',
                 '/css/styles-medium.css',
                 '/css/styles-large.css',
-                '/data/restaurants.json',
                 '/favicon.ico',
                 '/sw.js'
             ]
