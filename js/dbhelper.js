@@ -1,3 +1,11 @@
+
+var dbPromise = idb.open("restaurant-db", 1, function(upgradeDb) {
+      var keyValStore = upgradeDb.createObjectStore("restaurants", {
+        keyPath: "id"
+      });
+      keyValStore.createIndex('by-count', 'id');
+}); 
+
 /**
  * Common database helper functions.
  */
@@ -25,6 +33,30 @@ class DBHelper {
     })
   };
 
+
+  static fetchRestaurants1(callback) {
+    fetch(DBHelper.DATABASE_URL).then(function(response) {
+
+      if (response)
+      response.json().then(function(data) {
+        callback(null, data);
+        /* Lesson 8 part 6*/
+        dbPromise.then(function(db) {
+          var tx = db.transaction('restaurants', 'readwrite');
+          var keyValStore = tx.objectStore('restaurants');
+          data.forEach(function(element) {
+            keyValStore.put(element);
+          });
+        })
+
+      }).catch(function(error){
+        callback(error, null);
+    }).catch(function(error) {
+      console.log(error);
+    });
+    })    
+  };
+
   /**
    * Fetch a restaurant by its ID.
    */
@@ -37,6 +69,7 @@ class DBHelper {
         const restaurant = restaurants.find(r => r.id == id);
         if (restaurant) { // Got the restaurant
           callback(null, restaurant);
+          console.log(restaurant);
         } else { // Restaurant does not exist in the database
           callback('Restaurant does not exist', null);
         }
