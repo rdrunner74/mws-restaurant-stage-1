@@ -1,3 +1,11 @@
+
+var dbPromise = idb.open("restaurant-db", 1, function(upgradeDb) {
+      var keyValStore = upgradeDb.createObjectStore("restaurants", {
+        keyPath: "id"
+      });
+      keyValStore.createIndex('by-count', 'id');
+}); 
+
 /**
  * Common database helper functions.
  */
@@ -16,33 +24,55 @@ class DBHelper {
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
-    fetch(DBHelper.DATABASE_URL).then(function(response) {
-      return response.json();
-    }).then(function(data) {
-      callback(null, data);
+    var fetchPromise = fetch(DBHelper.DATABASE_URL);
+    fetchPromise.then(function(response) {
+
+      response.json().then(function(data) {
+        callback(null, data);
+        /* Lesson 8 part 6*/
+        dbPromise.then(function(db) {
+          var tx = db.transaction('restaurants', 'readwrite');
+          var keyValStore = tx.objectStore('restaurants');
+          data.forEach(function(element) {
+            keyValStore.put(element);
+          });
+        })
+
+      }).catch(function(error){
+        callback(error, null);
+      });
     }).catch(function(error){
-      callback(error, null);
-    })
+      dbPromise.then(function(db){
+          var tx = db.transaction('restaurants', 'readonly');
+          var keyValStore = tx.objectStore('restaurants');  
+          return keyValStore.getAll();
+      }).then(function(data) {
+          callback(null, data);
+      });
+
+
+    });    
   };
 
   /**
    * Fetch a restaurant by its ID.
    */
+
   static fetchRestaurantById(id, callback) {
     // fetch all restaurants with proper error handling.
-    DBHelper.fetchRestaurants((error, restaurants) => {
-      if (error) {
-        callback(error, null);
-      } else {
-        const restaurant = restaurants.find(r => r.id == id);
-        if (restaurant) { // Got the restaurant
-          callback(null, restaurant);
-        } else { // Restaurant does not exist in the database
-          callback('Restaurant does not exist', null);
+      DBHelper.fetchRestaurants((error, restaurants) => {
+        if (error) {
+          callback(error, null);
+        } else {
+          const restaurant = restaurants.find(r => r.id == id);
+          if (restaurant) { // Got the restaurant
+            callback(null, restaurant);
+          } else { // Restaurant does not exist in the database
+            callback('Restaurant does not exist', null);
+          }
         }
-      }
-    });
-  }
+      });
+    };   
 
   /**
    * Fetch restaurants by a cuisine type with proper error handling.

@@ -34,7 +34,29 @@ self.addEventListener('install', function(event) {
   self.addEventListener('fetch', function (event) {
     var requestUrl = new URL(event.request.url);
 
-    event.respondWith(caches.match(event.request).then(function (response) {
+    if (requestUrl.pathname.startsWith('/restaurant.html')) {
+        event.respondWith(restaurantCheck(event.request));
+        return;
+      }
+    
+    event.respondWith(
+        caches.match(event.request).then(function (response) {
         return response || fetch(event.request);
     }));
+
 });
+
+function restaurantCheck(request) {
+    var storageUrl = '/restaurant.html';
+  
+    return caches.open('restaurant').then(function(cache) {
+      return cache.match(storageUrl).then(function(response) {
+        if (response) return response;
+  
+        return fetch(request).then(function(networkResponse) {
+          cache.put(storageUrl, networkResponse.clone());
+          return networkResponse;
+        });
+      });
+    });
+  }

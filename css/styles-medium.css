@@ -233,7 +233,7 @@ nav h1 a {
   background: blue none repeat scroll 0 0;
   height: 30%;
   position: fixed;
-  top: 80px;
+  top: 70px;
   width: 100%;
   z-index: 100;
 }
