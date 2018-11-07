@@ -18,9 +18,10 @@ body {
 ul, li {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 10pt;
-  color: #333;
-  margin: 0; padding: 0;
-  width:100%;
+	color: #333;
+	margin: 0;
+	padding: 0;
+	width:100%;
 }
 a {
 	color: orange;
@@ -41,8 +42,10 @@ a img{
 }
 h1, h2, h3, h4, h5, h6 {
   font-family: Arial, Helvetica, sans-serif;
-  margin: 0; padding: 0;
+  margin: 0;
+  padding: 0;
   width:100%;
+  line-height: 100%;
 }
 article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
 	display: block;
@@ -171,16 +174,15 @@ nav h1 a {
   background-color: #fff;
   border: 2px solid #ccc;
   font-family: Arial,sans-serif;
-  margin: 0px 10px 0 10px; 
-  flex-basis: calc(50% - 22px);  
+  /* margin: 0px 10px 0 10px; */
+  flex-basis: calc(50% - 22px);
   flex-direction: column;
   align-items: center;
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
   max-width: 200px;
-  height: 350px;
- 
+  height: 300px;
 }
 #restaurants-list .restaurant-img {
   background-color: #ccc;
@@ -202,9 +204,10 @@ nav h1 a {
   text-transform: uppercase;
 }
 #restaurants-list p {
-  margin: 0; padding: 0;
+  margin: 0;
+  padding: 0;
   width:100%;
-  max-height: 22px;
+  /* max-height: 22px; */
   flex-wrap: wrap;
   font-size: 11pt;
 }
