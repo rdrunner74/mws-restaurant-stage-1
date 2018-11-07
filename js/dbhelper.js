@@ -3,7 +3,13 @@ var dbPromise = idb.open("restaurant-db", 1, function(upgradeDb) {
   var keyValStore = upgradeDb.createObjectStore("restaurants", {
     keyPath: "id"
   });
+  
   keyValStore.createIndex('by-count', 'id');
+
+  var keyRevStore = upgradeDb.createObjectStore("reviews", {
+    keyPath: "id"
+  });
+  keyRevStore.createIndex('restaurant_id', 'restaurant_id');
 }); 
 
 /**
@@ -16,10 +22,14 @@ class DBHelper {
 * Change this to restaurants.json file location on your server.
 */
 static get DATABASE_URL() {
-const port = 1337 // Change this to your server port
+const port = 1337;
 return `http://localhost:${port}/restaurants`;
 }
 
+static get DATABASE_REVIEWS_URL() {
+  const port = 1337;
+  return `http://localhost:${port}/reviews/?restaurant_id=`;
+  }
 /**
 * Fetch all restaurants.
 */
@@ -73,6 +83,44 @@ static fetchRestaurantById(id, callback) {
     }
   });
 };   
+
+/**
+* Fetch reviews.
+*/
+
+static fetchReviews(id, callback) {
+
+    var fetchPromise = fetch(DBHelper.DATABASE_REVIEWS_URL+id);
+    fetchPromise.then(function(response) {
+    
+      response.json().then(function(data) {
+        callback(null, data);
+        /* Lesson 8 part 6*/
+        dbPromise.then(function(db) {
+          var tx = db.transaction('reviews', 'readwrite');
+          var keyRevStore = tx.objectStore('reviews');
+          data.forEach(function(element) {
+            keyRevStore.put(element);
+          });
+        })
+    
+      }).catch(function(error){
+        callback(error, null);
+      });
+    }).catch(function(error){
+      dbPromise.then(function(db){
+          var tx = db.transaction('restaurant-db', 'readonly');
+          var keyRevStore = tx.objectStore('reviews');  
+          var restRevIndex = keyRevStore.index('restaurant_id');
+          return restRevIndex.getAll();
+      }).then(function(data) {
+          callback(null, data);
+      });
+    
+    
+    }); 
+  };   
+
 
 /**
 * Fetch restaurants by a cuisine type with proper error handling.
@@ -201,5 +249,85 @@ const marker = new google.maps.Marker({
 return marker;
 } */
 
+static fetchRestaurantReviews(callback) {
+  var fetchPromise = fetch(DBHelper.DATABASE_REVIEWS_URL);
+  fetchPromise.then(function(response) {
+  
+    response.json().then(function(data) {
+      callback(null, data);
+      /* Lesson 8 part 6*/
+      dbPromise.then(function(db) {
+        var tx = db.transaction('reviews', 'readwrite');
+        var keyValStore = tx.objectStore('reviews');
+        data.forEach(function(element) {
+          keyValStore.put(element);
+        });
+      })
+  
+    }).catch(function(error){
+      callback(error, null);
+    });
+  }).catch(function(error){
+    dbPromise.then(function(db){
+        var tx = db.transaction('reviews', 'readonly');
+        var keyValStore = tx.objectStore('reviews');  
+        return keyValStore.getAll();
+    }).then(function(data) {
+        callback(null, data);
+    });
+  
+  
+  });    
+  }
+
+
+
+  static updateIndexedDb(restaurant, is_favorite){
+    dbPromise.then(function(db){
+      var tx = db.transaction('restaurants',"readwrite");
+      //Ask for the objectStore
+      var keyValStore = tx.objectStore('restaurants');
+      return keyValStore.get(restaurant.id);
+    }).then(function(restaurant){
+      restaurant.is_favorite = !is_favorite;
+      dbPromise.then(function(db){
+        var tx = db.transaction('restaurants',"readwrite");
+        //Ask for the objectStore
+        var keyValStore = tx.objectStore('restaurants');
+        keyValStore.put(restaurant);
+      })
+    });
+  }
+
+
+  static updateServerInfo(restaurant){
+    var updateinfo =fetch(`${DBHelper.DATABASE_URL}/${restaurant.id}/?is_favorite=${restaurant.is_favorite}`, {method: "PUT"});
+    updateinfo.then(function (response){
+      if(response.status === 200){
+      }
+    });
+    dbPromise.then(function(db){
+      var tx = db.transaction('restaurants',"readwrite");
+      var keyValStore = tx.objectStore('restaurants');
+      //Ask for the objectStore
+      keyValStore.get(restaurant.id).then(function (upd) {
+        upd["is_favorite"] = restaurant.is_favorite;
+        keyValStore.put(upd);
+
+      });
+    })
+  }
+  static updateAllRestaurants() {
+    dbPromise.then(function(db){
+      var tx = db.transaction('restaurants',"readwrite");
+      var keyValStore = tx.objectStore('restaurants');
+      //Ask for the objectStore
+      keyValStore.getAll().then(function (allrestautants) {
+        allrestautants.forEach(function(restaurant){
+          fetch(`${DBHelper.DATABASE_URL}/${restaurant.id}/?is_favorite=${restaurant.is_favorite}`, {method: "PUT"}); 
+        });
+      })
+    })
+  }
 }
 

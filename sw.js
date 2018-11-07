@@ -3,7 +3,7 @@ self.addEventListener('install', function(event) {
       caches.open('restaurant').then(function(cache) {
         return cache.addAll(
             [
-                '/',
+                '/',  //
                 '/img/1.jpg',
                 '/img/2.jpg',
                 '/img/3.jpg',

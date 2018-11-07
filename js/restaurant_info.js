@@ -35,22 +35,6 @@ initMap = () => {
   });
 }  
  
-/* window.initMap = () => {
-  fetchRestaurantFromURL((error, restaurant) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
-      self.map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 16,
-        center: restaurant.latlng,
-        scrollwheel: false
-      });
-      fillBreadcrumb();
-      DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
-    }
-  });
-} */
-
 /**
  * Get current restaurant from page URL.
  */
@@ -64,7 +48,6 @@ fetchRestaurantFromURL = (callback) => {
     error = 'No restaurant id in URL'
     callback(error, null);
   } else {
-    console.log('Here1');
     DBHelper.fetchRestaurantById(id, (error, restaurant) => {
       self.restaurant = restaurant;
       if (!restaurant) {
@@ -81,6 +64,8 @@ fetchRestaurantFromURL = (callback) => {
  * Create restaurant HTML and add it to the webpage
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
+  
+
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
 
@@ -100,7 +85,15 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     fillRestaurantHoursHTML();
   }
   // fill reviews
-  fillReviewsHTML();
+  DBHelper.fetchReviews(restaurant.id, (error, reviews) => {
+    if (!reviews) {
+      console.log(error);
+      return;
+    }
+    fillReviewsHTML(reviews);
+   // callback(null, reviews)
+  });
+
 }
 
 /**
@@ -127,11 +120,12 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  * Create all reviews HTML and add them to the webpage.
  */
 fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
-
+console.log(reviews);
   if (!reviews) {
     const noReviews = document.createElement('p');
     noReviews.innerHTML = 'No reviews yet!';
@@ -165,7 +159,6 @@ createReviewHTML = (review) => {
   const comments = document.createElement('p');
   comments.innerHTML = review.comments;
   li.appendChild(comments);
-
   return li;
 }
 
