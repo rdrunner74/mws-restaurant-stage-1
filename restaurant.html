@@ -61,6 +61,18 @@
     <!-- end restaurant -->
     <!-- Beginning reviews -->
     <section id="reviews-container">
+      <div id="restReview">
+        <button onclick="showAddReview()">Add Review</button>
+        <br>
+        <div id="addReview" style="display:none;">
+          <br>
+          <label for="Name"> Name: <input id="addrevname" type="text" name="name" value=""></label><br><br>
+          <label for="Rating"></label>Rating:  <input id="addrevrating" type="text" name="Rating" value=""></label><br><br>
+          <label for="Comments"> Comments:  <input id="addrevcomments" type="text" name="Comments" value=""></label><br><br>
+          <button  id="subrev">Submit</button>
+          <br><br>
+        </div>
+      </div>
       <ul id="reviews-list" aria-label="reviews"></ul>
     </section>
     <!-- End reviews -->

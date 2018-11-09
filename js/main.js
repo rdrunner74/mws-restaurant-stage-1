@@ -15,11 +15,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
 
-window.addEventListener('offline', function(e) { console.log('offline'); });
+window.addEventListener('offline', function(e) { 
+  console.log('offline'); 
+});
 
 window.addEventListener('online', function(e) { 
   console.log('online'); 
   DBHelper.updateAllRestaurants();
+  DBHelper.updateAllReviews();
 });
 
 /**

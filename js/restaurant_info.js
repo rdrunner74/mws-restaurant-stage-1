@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
   initMap();
 });
 
+window.addEventListener('online', function(e) { 
+  console.log('online'); 
+  DBHelper.updateAllRestaurants();
+  DBHelper.updateAllReviews();
+
+});
 /**
  * Initialize leaflet map
  */
@@ -120,12 +126,15 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  * Create all reviews HTML and add them to the webpage.
  */
 fillReviewsHTML = (reviews = self.restaurant.reviews) => {
-
+  const btnSubRev = document.getElementById("subrev");
+  btnSubRev.addEventListener('click', (event) => {  
+    DBHelper.submitNewReview(self.restaurant.id);
+  });
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
-console.log(reviews);
+
   if (!reviews) {
     const noReviews = document.createElement('p');
     noReviews.innerHTML = 'No reviews yet!';
@@ -145,11 +154,13 @@ console.log(reviews);
 createReviewHTML = (review) => {
   const li = document.createElement('li');
   const name = document.createElement('p');
-  name.innerHTML = review.name;
+  
+  name.innerHTML = review.name
   li.appendChild(name);
-
+//Fix Date: https://stackoverflow.com/questions/847185/convert-a-unix-timestamp-to-time-in-javascript
   const date = document.createElement('p');
-  date.innerHTML = review.date;
+  var convertedDate = new Date(review.updatedAt).toLocaleDateString("en-US");
+  date.innerHTML = convertedDate;
   li.appendChild(date);
 
   const rating = document.createElement('p');
@@ -186,4 +197,13 @@ getParameterByName = (name, url) => {
   if (!results[2])
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+showAddReview =() =>{
+  var x = document.getElementById("addReview");
+  if (x.style.display === "block") {
+      x.style.display = "none";
+  } else {
+      x.style.display = "block";
+  } 
 }

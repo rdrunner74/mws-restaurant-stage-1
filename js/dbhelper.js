@@ -3,13 +3,17 @@ var dbPromise = idb.open("restaurant-db", 1, function(upgradeDb) {
   var keyValStore = upgradeDb.createObjectStore("restaurants", {
     keyPath: "id"
   });
-  
   keyValStore.createIndex('by-count', 'id');
 
   var keyRevStore = upgradeDb.createObjectStore("reviews", {
     keyPath: "id"
   });
   keyRevStore.createIndex('restaurant_id', 'restaurant_id');
+
+  var keyRevSaveStore = upgradeDb.createObjectStore("reviews-in-waiting", { keyPath: "comment_id", autoIncrement : true }, {
+    keyPath: "id"
+  });
+  keyRevSaveStore.createIndex('restaurant_id', 'restaurant_id');
 }); 
 
 /**
@@ -30,6 +34,10 @@ static get DATABASE_REVIEWS_URL() {
   const port = 1337;
   return `http://localhost:${port}/reviews/?restaurant_id=`;
   }
+  static get DATABASE_REVIEW_URL() {
+    const port = 1337;
+    return `http://localhost:${port}/reviews/`;
+    }
 /**
 * Fetch all restaurants.
 */
@@ -109,10 +117,10 @@ static fetchReviews(id, callback) {
       });
     }).catch(function(error){
       dbPromise.then(function(db){
-          var tx = db.transaction('restaurant-db', 'readonly');
+          var tx = db.transaction('reviews', 'readonly');
           var keyRevStore = tx.objectStore('reviews');  
           var restRevIndex = keyRevStore.index('restaurant_id');
-          return restRevIndex.getAll();
+          return restRevIndex.getAll(id);
       }).then(function(data) {
           callback(null, data);
       });
@@ -238,29 +246,18 @@ const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
   marker.addTo(newMap);
 return marker;
 } 
-/* static mapMarkerForRestaurant(restaurant, map) {
-const marker = new google.maps.Marker({
-  position: restaurant.latlng,
-  title: restaurant.name,
-  url: DBHelper.urlForRestaurant(restaurant),
-  map: map,
-  animation: google.maps.Animation.DROP}
-);
-return marker;
-} */
 
-static fetchRestaurantReviews(callback) {
+/*static fetchRestaurantReviews(callback) {
   var fetchPromise = fetch(DBHelper.DATABASE_REVIEWS_URL);
   fetchPromise.then(function(response) {
-  
     response.json().then(function(data) {
       callback(null, data);
       /* Lesson 8 part 6*/
-      dbPromise.then(function(db) {
+/*      dbPromise.then(function(db) {
         var tx = db.transaction('reviews', 'readwrite');
-        var keyValStore = tx.objectStore('reviews');
+        var keyRevStore = tx.objectStore('reviews');
         data.forEach(function(element) {
-          keyValStore.put(element);
+          keyRevStore.put(element);
         });
       })
   
@@ -270,15 +267,15 @@ static fetchRestaurantReviews(callback) {
   }).catch(function(error){
     dbPromise.then(function(db){
         var tx = db.transaction('reviews', 'readonly');
-        var keyValStore = tx.objectStore('reviews');  
-        return keyValStore.getAll();
+        var keyRevStore = tx.objectStore('reviews');  
+        return keyRevStore.getAll();
     }).then(function(data) {
         callback(null, data);
     });
   
   
   });    
-  }
+}*/
 
 
 
@@ -329,5 +326,66 @@ static fetchRestaurantReviews(callback) {
       })
     })
   }
-}
 
+  static submitNewReview(restaurant_id) {
+    var revName = document.getElementById("addrevname").value;
+    var revRating = document.getElementById("addrevrating").value;
+    var revComments = document.getElementById("addrevcomments").value; 
+    var data = {
+      restaurant_id: restaurant_id,
+      name: revName,
+      rating: revRating,
+      comments: revComments};
+    fetch(DBHelper.DATABASE_REVIEW_URL, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers:{
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json())
+    .then(response => console.log('Success:', JSON.stringify(response)))
+    /*.catch(error => console.error('Error:', error));  */
+    .catch(function(error){
+      dbPromise.then(function(db){
+        var tx = db.transaction('reviews-in-waiting', 'readwrite');
+        var keyRevSaveStore = tx.objectStore('reviews-in-waiting');  
+          keyRevSaveStore.put(data);
+      });
+    })
+  };
+
+    static updateAllReviews() {
+      dbPromise.then(function(db){
+        var tx = db.transaction('reviews-in-waiting','readwrite');
+        var keyRevSaveStore = tx.objectStore('reviews-in-waiting');
+        var revIndex = keyRevSaveStore.index('restaurant_id');
+
+        return revIndex.openCursor();
+      }).then(function reviewUpdates(cursor){
+        if (!cursor) return;
+        console.log("Cursored at:", cursor.value.name);
+        var data = {
+          restaurant_id: cursor.value.restaurant_id,
+          name: cursor.value.name,
+          rating: cursor.value.rating,
+          comments: cursor.value.comments
+        };
+        fetch(DBHelper.DATABASE_REVIEW_URL, {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        }).then(res => res.json())
+          .then(response => console.log('Success:', JSON.stringify(response)));
+
+
+        // I could also do things like:
+        // cursor.update(newValue) to change the value, or
+        cursor.delete(); //to delete this entry
+        return cursor.continue().then(reviewUpdates);
+      }).then(function() {
+        console.log('Done cursoring');
+      });
+    }
+  }
