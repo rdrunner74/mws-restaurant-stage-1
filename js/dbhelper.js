@@ -246,39 +246,6 @@ const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
   marker.addTo(newMap);
 return marker;
 } 
-
-/*static fetchRestaurantReviews(callback) {
-  var fetchPromise = fetch(DBHelper.DATABASE_REVIEWS_URL);
-  fetchPromise.then(function(response) {
-    response.json().then(function(data) {
-      callback(null, data);
-      /* Lesson 8 part 6*/
-/*      dbPromise.then(function(db) {
-        var tx = db.transaction('reviews', 'readwrite');
-        var keyRevStore = tx.objectStore('reviews');
-        data.forEach(function(element) {
-          keyRevStore.put(element);
-        });
-      })
-  
-    }).catch(function(error){
-      callback(error, null);
-    });
-  }).catch(function(error){
-    dbPromise.then(function(db){
-        var tx = db.transaction('reviews', 'readonly');
-        var keyRevStore = tx.objectStore('reviews');  
-        return keyRevStore.getAll();
-    }).then(function(data) {
-        callback(null, data);
-    });
-  
-  
-  });    
-}*/
-
-
-
   static updateIndexedDb(restaurant, is_favorite){
     dbPromise.then(function(db){
       var tx = db.transaction('restaurants',"readwrite");
@@ -352,6 +319,9 @@ return marker;
           keyRevSaveStore.put(data);
       });
     })
+    document.getElementById("addrevname").value = "";
+    document.getElementById("addrevrating").value = "";
+    document.getElementById("addrevcomments").value = "";
   };
 
     static updateAllReviews() {
@@ -378,10 +348,7 @@ return marker;
           }
         }).then(res => res.json())
           .then(response => console.log('Success:', JSON.stringify(response)));
-
-
-        // I could also do things like:
-        // cursor.update(newValue) to change the value, or
+        // https://github.com/jakearchibald/idb
         cursor.delete(); //to delete this entry
         return cursor.continue().then(reviewUpdates);
       }).then(function() {

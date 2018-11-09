@@ -16,11 +16,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
 window.addEventListener('offline', function(e) { 
-  console.log('offline'); 
+  //console.log('offline'); 
 });
 
 window.addEventListener('online', function(e) { 
-  console.log('online'); 
+  //console.log('online'); 
   DBHelper.updateAllRestaurants();
   DBHelper.updateAllReviews();
 });
@@ -31,7 +31,7 @@ window.addEventListener('online', function(e) {
 fetchNeighborhoods = () => {
   DBHelper.fetchNeighborhoods((error, neighborhoods) => {
     if (error) { // Got an error
-      console.error(error);
+      //console.error(error);
     } else {
       self.neighborhoods = neighborhoods;
       fillNeighborhoodsHTML();
@@ -59,7 +59,7 @@ fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
 fetchCuisines = () => {
   DBHelper.fetchCuisines((error, cuisines) => {
     if (error) { // Got an error!
-      console.error(error);
+      //console.error(error);
     } else {
       self.cuisines = cuisines;
       fillCuisinesHTML();
@@ -115,7 +115,7 @@ updateRestaurants = () => {
 
   DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, (error, restaurants) => {
     if (error) { // Got an error!
-      console.error(error);
+      //console.error(error);
     } else {
       resetRestaurants(restaurants);
       fillRestaurantsHTML();
@@ -179,7 +179,7 @@ createRestaurantHTML = (restaurant) => {
   }
   
   favorite.onclick = function(){
-    
+    const b_is_favorite = restaurant.is_favorite && restaurant.is_favorite !== "false";
     if(restaurant.is_favorite !== undefined && b_is_favorite){
       //DBHelper.updateIndexedDb(restaurant.id, restaurant.is_favorite);
       favorite.innerHTML = 	'☆';

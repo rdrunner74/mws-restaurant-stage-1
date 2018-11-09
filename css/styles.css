@@ -11,8 +11,9 @@ body,td,th,p{
 }
 body {
 	background-color: #fdfdfd;
-  margin: 0; padding: 0;
-  width:100%;
+	margin: 0;
+	padding: 0;
+	width:100%;
 	position:relative;
 }
 ul, li {
@@ -231,7 +232,7 @@ nav h1 a {
 }
 .inside #map-container {
   background: blue none repeat scroll 0 0;
-  height: 30px;;
+  height: 250px;
   position: fixed;
   top: 70px;
   width: 100%;
@@ -239,7 +240,7 @@ nav h1 a {
 }
 .inside #map {
   background-color: #ccc;
-  height: 100%;
+  height: 250px;
   width: 100%;
 }
 .inside #footer {
