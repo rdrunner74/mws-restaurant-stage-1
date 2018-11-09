@@ -322,6 +322,7 @@ return marker;
     document.getElementById("addrevname").value = "";
     document.getElementById("addrevrating").value = "";
     document.getElementById("addrevcomments").value = "";
+    fillReviewsHTML();
   };
 
     static updateAllReviews() {

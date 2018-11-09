@@ -142,6 +142,8 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
     return;
   }
   const ul = document.getElementById('reviews-list');
+  ul.innerHTML = '';
+  reviews.reverse();
   reviews.forEach(review => {
     ul.appendChild(createReviewHTML(review));
   });
